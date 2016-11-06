@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 require 'logger'
+require 'json'
+require 'nokogiri'
 require 'mechanize'
 require './model'
 
@@ -27,5 +29,40 @@ def fetch_country
   end
 end
 
+def fetch_city
+  url = 'http://www.mafengwo.cn/mdd/base/list/pagedata_citylist'
+  Country.each do |country|
+    # next if country.id < 10062  # debug
+    (1..999).each do |num|
+      p country.name_cn, num
+      @logger.info("crawling: #{country.name_cn} - #{country.id} - page: #{num}")
+      data = {"page"=>num, "mddid"=>country.id}
+      doc = @agent.post(url, data)
+      resp = JSON.parse(doc.content)
+      page = Nokogiri::HTML(resp['page'])
+      list = Nokogiri::HTML(resp['list'])
+      list.css('li.item').each do |item|
+        begin
+          id = item.css('.img a').attr('href').text.scan(/\/(\d+)\.html/).last.last
+          fullname = item.css('.title').text.strip
+          name_en = item.css('.title .enname').text.strip
+          name_cn = fullname.gsub(name_en, '').strip
+          if fullname.scan(/\p{Han}/).empty?
+            name_cn = nil
+            name_en = fullname
+          end
+          summary = item.css('.caption .detail').text.strip
+          visited_num = item.css('.caption .nums b').text
+          City.create(:id=>id, :country_id=>country.id, :name_en=>name_en, :name_cn=>name_cn, :summary=>summary, :visited_num=>visited_num)
+        rescue
+          @logger.error($!)
+        end
+      end
+      break if page.css('.pg-last').empty?
+    end
+  end
+end
 
-fetch_country
+
+# fetch_country
+fetch_city
