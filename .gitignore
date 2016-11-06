@@ -27,6 +27,10 @@ Gemfile.lock
 .ruby-version
 .rbenv-gemsets
 
+*~
+.\#*
+\#*\#
+
 *.sqlite
 *.log
 backup/

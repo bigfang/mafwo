@@ -11,6 +11,7 @@ DB.create_table :countries do
   String :name_cn, :size=>10
   String :name_en, :size=>100
   String :continent, :size=>5
+  TrueClass :is_hot
 end
 
 DB.create_table :cities do
@@ -19,6 +20,7 @@ DB.create_table :cities do
   String :name_cn, :size=>10
   String :name_en, :size=>100
   String :summary, :size=>500
+  Integer :visited_num
 end
 
 DB.create_table :spots do
