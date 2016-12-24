@@ -25,6 +25,5 @@ end
 DB.create_table :spots do
   primary_key :id, :auto_increment=>false
   foreign_key :city_id, :cities, :null=>false
-  String :name_cn, :size=>50
-  String :name_en, :size=>10
+  String :name, :size=>100
 end
