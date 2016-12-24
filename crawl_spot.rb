@@ -63,6 +63,34 @@ def fetch_city
   end
 end
 
+def fetch_spot
+  url = 'http://www.mafengwo.cn/ajax/router.php'
+  City.where{id > 0}.each do |city|
+    @logger.info("#{city.id} #{city.name_cn}")
+    (1..9999).each do |num|
+      @logger.debug("page #{num}")
+      data = {"sAct"=>"KMdd_StructWebAjax|GetPoisByTag",
+              "iMddid"=>city.id, "iTagId"=>0, "iPage"=>num}
+      doc = @agent.post(url, data)
+      resp = JSON.parse(doc.content)
+      page = Nokogiri::HTML(resp['data']['page'])
+      list = Nokogiri::HTML(resp['data']['list'])
+
+      list.css('li').each do |li|
+        begin
+          id = li.css('a').attr('href').text.scan(/\/(\d+)\.html/).last.last
+          name = li.css('a').attr('title').text
+          Spot.create(:id=>id, :city_id=>city.id, :name=>name)
+        rescue
+          @logger.error("#{city.id} - #{name} - #{id}")
+          @logger.error($!)
+        end
+      end
+      break if page.css('.pg-last').empty?
+    end
+  end
+end
 
 # fetch_country
-fetch_city
+# fetch_city
+fetch_spot
