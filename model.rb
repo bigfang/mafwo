@@ -14,10 +14,15 @@ end
 class City < Sequel::Model(:cities)
   unrestrict_primary_key
   many_to_one :countries
-  one_to_many :spots
+  many_to_many :spots
 end
 
 class Spot < Sequel::Model(:spots)
   unrestrict_primary_key
-  many_to_one :cities
+  many_to_many :cities
 end
+
+# class Cityspot < Sequel::Model(:cities_spots)
+#   many_to_one :cities
+#   many_to_one :spots
+# end

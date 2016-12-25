@@ -83,7 +83,9 @@ def fetch_spot
         begin
           id = li.css('a').attr('href').text.scan(/\/(\d+)\.html/).last.last
           name = li.css('a').attr('title').text
-          Spot.create(:id=>id, :city_id=>city.id, :name=>name)
+          spot = Spot.new(:id=>id, :country_id=>city.country_id, :name=>name)
+          spot.save
+          spot.add_city(city)
         rescue => err
           @logger.error("#{err.message} :: #{city.id} - #{name} - #{id}")
         end
