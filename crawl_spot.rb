@@ -24,7 +24,11 @@ def fetch_country
       fullname = city.text
       name_en = city.css('.en').text.strip
       name_cn = fullname.gsub(name_en, '').strip
-      Country.create(:id=>id, :name_cn=>name_cn, :name_en=>name_en, :continent=>continent)
+      begin
+        Country.create(:id=>id, :name_cn=>name_cn, :name_en=>name_en, :continent=>continent)
+        @logger.info("new country #{name_cn} - #{id}")
+      rescue
+      end
     end
   end
 end
@@ -34,7 +38,6 @@ def fetch_city
   Country.each do |country|
     # next if country.id < 10062  # debug
     (1..999).each do |num|
-      p country.name_cn, num
       @logger.info("crawling: #{country.name_cn} - #{country.id} - page: #{num}")
       data = {"page"=>num, "mddid"=>country.id}
       doc = @agent.post(url, data)
@@ -43,7 +46,7 @@ def fetch_city
       list = Nokogiri::HTML(resp['list'])
       list.css('li.item').each do |item|
         begin
-          id = item.css('.img a').attr('href').text.scan(/\/(\d+)\.html/).last.last
+          id = item.css('.img a').attr('data-id').text
           fullname = item.css('.title').text.strip
           name_en = item.css('.title .enname').text.strip
           name_cn = fullname.gsub(name_en, '').strip
@@ -54,8 +57,8 @@ def fetch_city
           summary = item.css('.caption .detail').text.strip
           visited_num = item.css('.caption .nums b').text
           City.create(:id=>id, :country_id=>country.id, :name_en=>name_en, :name_cn=>name_cn, :summary=>summary, :visited_num=>visited_num)
-        rescue
-          @logger.error($!)
+        rescue => err
+          @logger.error(err.message)
         end
       end
       break if page.css('.pg-last').empty?
@@ -66,7 +69,7 @@ end
 def fetch_spot
   url = 'http://www.mafengwo.cn/ajax/router.php'
   City.where{id > 0}.each do |city|
-    @logger.info("#{city.id} #{city.name_cn}")
+    @logger.debug("#{city.id} #{city.name_cn}")
     (1..9999).each do |num|
       @logger.debug("page #{num}")
       data = {"sAct"=>"KMdd_StructWebAjax|GetPoisByTag",
@@ -81,9 +84,8 @@ def fetch_spot
           id = li.css('a').attr('href').text.scan(/\/(\d+)\.html/).last.last
           name = li.css('a').attr('title').text
           Spot.create(:id=>id, :city_id=>city.id, :name=>name)
-        rescue
-          @logger.error("#{city.id} - #{name} - #{id}")
-          @logger.error($!)
+        rescue => err
+          @logger.error(" #{err.message} :: #{city.id} - #{name} - #{id}")
         end
       end
       break if page.css('.pg-last').empty?
@@ -91,6 +93,11 @@ def fetch_spot
   end
 end
 
-# fetch_country
-# fetch_city
-fetch_spot
+
+if ARGV[0] == '1'
+  fetch_country
+elsif ARGV[0] == '2'
+  fetch_city
+elsif ARGV[0] == '3'
+  fetch_spot
+end
