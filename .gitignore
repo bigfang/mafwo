@@ -31,6 +31,7 @@ Gemfile.lock
 .\#*
 \#*\#
 
+.DS_Store
 *.sqlite
 *.log
 backup/
