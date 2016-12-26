@@ -83,11 +83,16 @@ def fetch_spot
         begin
           id = li.css('a').attr('href').text.scan(/\/(\d+)\.html/).last.last
           name = li.css('a').attr('title').text
-          spot = Spot.new(:id=>id, :country_id=>city.country_id, :name=>name)
-          spot.save
-          spot.add_city(city)
+          begin
+            spot = Spot.new(:id=>id, :country_id=>city.country_id, :name=>name)
+            spot.save
+            spot.add_city(city)
+          rescue => er
+            spot.add_city(city)
+            @logger.error("#{er.message} :: #{city.id} - #{name} - #{id}")
+          end
         rescue => err
-          @logger.error("#{err.message} :: #{city.id} - #{name} - #{id}")
+          @logger.error("#{err.message}")
         end
       end
       break if page.css('.pg-last').empty?
