@@ -100,6 +100,22 @@ def fetch_spot
   end
 end
 
+def fetch_summary
+  Spot.order(:id).where{id > 29178}.each do |spot|
+    @logger.debug("country:#{spot.country_id} spot:#{spot.id} #{spot.name}")
+    url = "http://www.mafengwo.cn/poi/#{spot.id}.html"
+    begin
+      doc = @agent.get(url)
+    rescue Mechanize::ResponseCodeError => err
+      @logger.error("#{err.message}")
+      next
+    end
+    summary = doc.css('.mod-detail .summary').text.strip
+    spot.summary = summary
+    spot.save
+  end
+end
+
 
 if ARGV[0] == '1'
   fetch_country
@@ -107,4 +123,6 @@ elsif ARGV[0] == '2'
   fetch_city
 elsif ARGV[0] == '3'
   fetch_spot
+elsif ARGV[0] == '4'
+  fetch_summary
 end
