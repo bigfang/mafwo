@@ -114,13 +114,15 @@ def fetch_summary
 
     script = doc.css('script').first.text
     txt = script.split("\n")[1]
-    str = txt.scan(/window\.Env = ({.*});/).first.first
-    res = JSON.parse(str)
+    if txt
+      str = txt.scan(/window\.Env = ({.*});/).first.first
+      res = JSON.parse(str)
+      spot.lat = res['lat']
+      spot.lng = res['lng']
+    end
 
     summary = doc.css('.mod-detail .summary').text.strip
     spot.summary = summary
-    spot.lat = res['lat']
-    spot.lng = res['lng']
     spot.save
   end
 end

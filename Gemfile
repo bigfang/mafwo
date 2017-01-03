@@ -6,5 +6,6 @@ gem 'sqlite3'
 gem 'postgres'
 gem 'sequel'
 gem 'mechanize'
+gem 'celluloid'
 
 gem 'pry'

@@ -28,7 +28,7 @@ DB.create_table :spots do
   Integer :id, :auto_increment=>false, :primary_key=>true
   foreign_key :country_id, :countries, :null=>false
   String :name, :size=>100
-  String :summary, :size=>1000
+  String :summary, :size=>5000
   Float :lat
   Float :lng
   TIme :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
