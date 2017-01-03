@@ -27,7 +27,8 @@ def fetch_country
       begin
         Country.create(:id=>id, :name_cn=>name_cn, :name_en=>name_en, :continent=>continent)
         @logger.info("new country #{name_cn} - #{id}")
-      rescue
+      rescue => err
+        @logger.error("#{err.message}")
       end
     end
   end
@@ -126,3 +127,5 @@ elsif ARGV[0] == '3'
 elsif ARGV[0] == '4'
   fetch_summary
 end
+
+@logger.info('fin!')

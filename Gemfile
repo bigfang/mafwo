@@ -3,6 +3,7 @@ source 'https://gems.ruby-china.org/'
 
 gem 'bundler'
 gem 'sqlite3'
+gem 'postgres'
 gem 'sequel'
 gem 'mechanize'
 

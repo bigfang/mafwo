@@ -3,7 +3,8 @@
 
 require 'sequel'
 
-DB = Sequel.sqlite('db/db.sqlite')
+# DB = Sequel.sqlite('db/db.sqlite')
+DB = Sequel.postgres('hornet', :host=>'localhost', :user=>'bigfang', :password=>'')
 
 
 class Country < Sequel::Model(:countries)
