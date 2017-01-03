@@ -102,7 +102,7 @@ def fetch_spot
 end
 
 def fetch_summary
-  Spot.order(:id).where{id > 29178}.each do |spot|
+  Spot.order(:id).where{id > 0}.each do |spot|
     @logger.debug("country:#{spot.country_id} spot:#{spot.id} #{spot.name}")
     url = "http://www.mafengwo.cn/poi/#{spot.id}.html"
     begin
@@ -111,8 +111,16 @@ def fetch_summary
       @logger.error("#{err.message}")
       next
     end
+
+    script = doc.css('script').first.text
+    txt = script.split("\n")[1]
+    str = txt.scan(/window\.Env = ({.*});/).first.first
+    res = JSON.parse(str)
+
     summary = doc.css('.mod-detail .summary').text.strip
     spot.summary = summary
+    spot.lat = res['lat']
+    spot.lng = res['lng']
     spot.save
   end
 end
