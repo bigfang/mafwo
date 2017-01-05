@@ -21,9 +21,28 @@ end
 class Spot < Sequel::Model(:spots)
   unrestrict_primary_key
   many_to_many :cities
+  one_to_many :reviews
 end
 
-# class Cityspot < Sequel::Model(:cities_spots)
-#   many_to_one :cities
-#   many_to_one :spots
-# end
+class User < Sequel::Model(:users)
+  unrestrict_primary_key
+  one_to_many :reviews
+end
+
+class Review < Sequel::Model(:reviews)
+  unrestrict_primary_key
+  many_to_one :spots
+  many_to_one :users
+  one_to_many :photos
+end
+
+class Photo < Sequel::Model(:photos)
+  unrestrict_primary_key
+  many_to_one :reviews
+end
+
+class PhotoReview < Sequel::Model(:photos_reviews)
+  unrestrict_primary_key
+  one_to_one :photos
+  many_to_one :reviews
+end
