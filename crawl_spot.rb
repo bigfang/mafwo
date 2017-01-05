@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
+require 'celluloid'
+require 'celluloid/autostart'
 require 'logger'
 require 'json'
 require 'nokogiri'
@@ -10,6 +12,7 @@ require './model'
 
 @logger = Logger.new("log/spot.log")
 @agent = Mechanize.new
+@agent.read_timeout = 30
 @agent.user_agent_alias = Mechanize::AGENT_ALIASES.keys[1..-4].sample
 @agent.log = Logger.new("log/agent_spot.log")
 
@@ -128,6 +131,40 @@ def fetch_summary
 end
 
 
+class Sender
+  include Celluloid
+
+  def req(spot)
+    Celluloid.logger = ::Logger.new("log/review.log")
+    Celluloid.logger.debug("country:#{spot.country_id} spot:#{spot.id} #{spot.name}")
+
+    agent = Mechanize.new
+    agent.user_agent_alias = Mechanize::AGENT_ALIASES.keys[1..-4].sample
+
+    (1..999).each do |no|
+      data = {:params => "{\"poi_id\":#{spot.id},\"page\":#{no},\"just_comment\":1}",
+              :api => ":mdd:pagelet:poiCommentListApi"}
+      url = 'http://www.mafengwo.cn/ajax/ajax_fetch_pagelet.php'
+      doc = agent.get(url, data)
+      resp = JSON.parse(doc.content)
+      page = Nokogiri::HTML(resp['data']['html'])
+      page.css('.comment-item').each do |item|
+
+      end
+      break
+    end
+  end
+end
+
+def fetch_review
+  pool = Sender.pool(size: 1)
+
+  Spot.order(:country_id, :id).where{country_id > 0}.map do |spot|
+    pool.future.req(spot)
+  end
+end
+
+
 if ARGV[0] == '1'
   fetch_country
 elsif ARGV[0] == '2'
@@ -136,6 +173,8 @@ elsif ARGV[0] == '3'
   fetch_spot
 elsif ARGV[0] == '4'
   fetch_summary
+elsif ARGV[0] == '5'
+  fetch_review
 end
 
 @logger.info('fin!')
