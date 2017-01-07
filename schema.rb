@@ -21,7 +21,7 @@ DB.create_table :cities do
   String :name_en, :size=>100
   String :summary, :size=>500
   Integer :visited_num
-  TIme :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
+  DateTime :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
 end
 
 DB.create_table :spots do
@@ -31,7 +31,7 @@ DB.create_table :spots do
   String :summary, :size=>5000
   Float :lat
   Float :lng
-  TIme :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
+  DateTime :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
 end
 
 DB.create_table :cities_spots do
@@ -52,6 +52,7 @@ end
 DB.create_table :photos do
   Integer :id, :auto_increment=>false, :primary_key=>true
   String :link, :size=>200
+  DateTime :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
 end
 
 DB.create_table :reviews do
@@ -62,8 +63,8 @@ DB.create_table :reviews do
   Integer :up
   String :content, :size=>3000
   String :from, :size=>30
-  TIme :published_at
-  TIme :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
+  DateTime :published_at
+  DateTime :created_at, :null=>false, :default=>Sequel::CURRENT_TIMESTAMP
 end
 
 DB.create_table :photos_reviews do
