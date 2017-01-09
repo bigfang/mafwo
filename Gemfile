@@ -3,9 +3,10 @@ source 'https://gems.ruby-china.org/'
 
 gem 'bundler'
 gem 'sqlite3'
-gem 'postgres'
+gem 'pg'
 gem 'sequel'
 gem 'mechanize'
-gem 'celluloid'
+gem 'parallel'
+# gem 'celluloid'
 
 gem 'pry'
